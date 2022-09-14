@@ -11,7 +11,6 @@ async function main() {
   const limit = core.getInput("limit") || 10;
   const message = core.getInput("message");
   const autoClose = core.getBooleanInput("auto_close") || false;
-  const includeGreetings = core.getBooleanInput("include_greetings") || true;
 
   const event = github.context.payload;
   const headRef = event.pull_request.head.ref.toLowerCase(); // source
@@ -54,17 +53,15 @@ async function main() {
       `PR author ${currentPRAuthor} currently has ${currentPRAuthorsPRsCount} open PRs but the limit is ${limit}!`
     );
 
-    await client.rest.issues.createComment({
-      ...github.context.repo,
-      issue_number: currentPR.number,
-      body: stripIndents`${
-        includeGreetings
-          ? `Hello @${currentPRAuthor}`
-          : `
+    if (message) {
+      await client.rest.issues.createComment({
+        ...github.context.repo,
+        issue_number: currentPR.number,
+        body: stripIndents`Hello @${currentPRAuthor}
       
-      `
-      }${message}`,
-    });
+      ${message}`,
+      });
+    }
 
     if (autoClose) {
       await client.rest.pulls.update({
