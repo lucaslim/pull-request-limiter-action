@@ -11,10 +11,15 @@ inputs:
     required: true
   auto_close:
     description: "Automatically close Pull Requests?"
+    required: false
+    default: "false"
   message:
     description: "Message you want to show as a comment"
+    required: false
   include_greetings:
     description: "Well, do you feel like being polite and greet the user?"
+    required: false
+    default: "true"
 
 runs:
   using: "node16"
