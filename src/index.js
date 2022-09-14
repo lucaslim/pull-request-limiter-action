@@ -45,10 +45,11 @@ async function main() {
   );
 
   if (currentPR.id !== currentPRAuthorsLatestPR.id) {
-    core.info(
-      `Skipping check because this is not the latest PR of ${currentPRAuthor}.`
-    );
-    return;
+    // this could happen if the query is returned from a old cache on github
+    core.info(`This is not the latest PR of ${currentPRAuthor}.`);
+
+    // for this edge case we just add one to the count, assuming that the first pr should exust
+    currentPRAuthorsPRsCount += 1;
   }
 
   if (currentPRAuthorsPRsCount > limit) {
