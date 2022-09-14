@@ -30,6 +30,10 @@ async function main() {
   });
   const prs = prsResponse.data;
 
+  console.log("github context>>", github.context);
+  console.log("currentPR>>", currentPR);
+  console.log("prs>>", prs);
+
   const currentPRAuthorsLatestPR = prs[0];
   const currentPRAuthorsPRsCount = prs
     .filter((pr) => !pr.draft) // ignore drafts
