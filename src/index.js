@@ -32,13 +32,15 @@ async function main() {
 
   console.log("github context>>", github.context);
   console.log("currentPR>>", currentPR);
-  console.log("prs>>", prs);
 
   const currentPRAuthorsLatestPR = prs[0];
   const currentPRAuthorsPRsCount = prs
     .filter((pr) => !pr.draft) // ignore drafts
     .map((pr) => pr.user.login)
     .filter((a) => a === currentPRAuthor).length;
+
+  console.log("currentPRAuthorsLatestPR>>", currentPRAuthorsLatestPR);
+  console.log("prs>>", prs);
 
   core.info(
     `PR author ${currentPRAuthor} currently has ${currentPRAuthorsPRsCount} open PRs.`
