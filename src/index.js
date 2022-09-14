@@ -31,21 +31,22 @@ async function main() {
   const prs = prsResponse.data;
 
   const currentPRAuthorsLatestPR = prs[0];
-  const currentPRAuthorsPRsCount = prs
+  let currentPRAuthorsPRsCount = prs
     .filter((pr) => !pr.draft) // ignore drafts
     .map((pr) => pr.user.login)
     .filter((a) => a === currentPRAuthor).length;
 
+  if (currentPR.id !== currentPRAuthorsLatestPR.id) {
+    // this could happen if the query is returned from a old cache on github
+    core.info(`This is not the latest PR of ${currentPRAuthor}.`);
+
+    // for this edge case we just add one to the count, assuming that the first pr should exust
+    currentPRAuthorsPRsCount += 1;
+  }
+
   core.info(
     `PR author ${currentPRAuthor} currently has ${currentPRAuthorsPRsCount} open PRs.`
   );
-
-  if (currentPR.id !== currentPRAuthorsLatestPR.id) {
-    core.info(
-      `Skipping check because this is not the latest PR of ${currentPRAuthor}.`
-    );
-    return;
-  }
 
   if (currentPRAuthorsPRsCount > limit) {
     core.setFailed(
