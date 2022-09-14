@@ -1,6 +1,5 @@
 const core = require("@actions/core");
 const github = require("@actions/github");
-const { stripIndents } = require("common-tags");
 
 async function main() {
   if (github.context.eventName !== "pull_request") {
@@ -9,7 +8,7 @@ async function main() {
 
   const token = core.getInput("token", { required: true });
   const limit = core.getInput("limit") || 10;
-  const message = core.getInput("message");
+  const body = core.getInput("body");
   const autoClose = core.getBooleanInput("auto_close") || false;
 
   const event = github.context.payload;
@@ -48,18 +47,16 @@ async function main() {
     return;
   }
 
-  if (currentPRAuthorsPRsCount >= limit) {
+  if (currentPRAuthorsPRsCount > limit) {
     core.setFailed(
       `PR author ${currentPRAuthor} currently has ${currentPRAuthorsPRsCount} open PRs but the limit is ${limit}!`
     );
 
-    if (message) {
+    if (body) {
       await client.rest.issues.createComment({
         ...github.context.repo,
         issue_number: currentPR.number,
-        body: stripIndents`Hello @${currentPRAuthor}
-      
-      ${message}`,
+        body,
       });
     }
 

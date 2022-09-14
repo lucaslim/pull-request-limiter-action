@@ -13,8 +13,8 @@ inputs:
     description: "Automatically close Pull Requests?"
     required: false
     default: "false"
-  message:
-    description: "Message you want to show as a comment"
+  body:
+    description: "Body text that you want to show as a comment"
     required: false
 
 runs:
