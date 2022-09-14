@@ -1,0 +1,29 @@
+{
+  "name": "pull-request-limiter-action",
+  "version": "1.0.0",
+  "description": "Limits the number of pull requests anyone can open",
+  "main": "build/index.js",
+  "scripts": {
+    "build": "ncc build src/index.js -m -o build"
+  },
+  "repository": "git+https://github.com/lucaslim/pull-request-limiter-action.git",
+  "keywords": [
+    "github",
+    "actions"
+  ],
+  "author": "Lucas L.",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lucaslim/pull-request-limiter-action/issues"
+  },
+  "homepage": "https://github.com/lucaslim/pull-request-limiter-action#readme",
+  "devDependencies": {
+    "@types/node": "18.7.17",
+    "@vercel/ncc": "0.34.0"
+  },
+  "dependencies": {
+    "@actions/core": "1.9.1",
+    "@actions/github": "5.0.3",
+    "common-tags": "^1.8.2"
+  }
+}

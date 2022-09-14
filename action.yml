@@ -1,0 +1,21 @@
+name: "Pull Request Limiter Action"
+description: "Set a limit on how many open Pull Request is allowed"
+author: "Lucas L."
+
+inputs:
+  token:
+    description: "GitHub token"
+    required: true
+  limit:
+    description: "Maximum number of Pull Requests allowed"
+    required: true
+  auto_close:
+    description: "Automatically close Pull Requests?"
+  message:
+    description: "Message you want to show as a comment"
+  include_greetings:
+    description: "Well, do you feel like being polite and greet the user?"
+
+runs:
+  using: "node16"
+  main: "build/index.js"
