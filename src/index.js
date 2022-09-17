@@ -38,7 +38,7 @@ async function main() {
     }
   `);
 
-  console.log(response.data.search);
+  console.log("X", response.data.search);
 
   // console.log("github context>>", github.context);
   // console.log("currentPR>>", currentPR);
