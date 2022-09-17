@@ -32,7 +32,7 @@ async function main() {
 
   const response = await client.graphql(`
     query {
-      search(query: "repo:${context.repo.owner}/${context.repo.repo} author:${actor} is:open is:pr draft:false archived:false", type: ISSUE) {
+      search(query: "repo:${github.context.repo.owner}/${github.context.repo.repo} author:${actor} is:open is:pr draft:false archived:false", type: ISSUE) {
         issueCount
       }
     }
