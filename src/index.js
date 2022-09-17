@@ -30,8 +30,18 @@ async function main() {
   });
   const prs = prsResponse.data;
 
-  console.log("github context>>", github.context);
-  console.log("currentPR>>", currentPR);
+  const response = await client.graphql(`
+    query {
+      search(query: "repo:${context.repo.owner}/${context.repo.repo} author:${actor} is:open is:pr draft:false archived:false", type: ISSUE) {
+        issueCount
+      }
+    }
+  `);
+
+  console.log(response.data.search);
+
+  // console.log("github context>>", github.context);
+  // console.log("currentPR>>", currentPR);
 
   const currentPRAuthorsLatestPR = prs[0];
   const currentPRAuthorsPRsCount = prs
