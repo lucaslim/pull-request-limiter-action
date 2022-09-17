@@ -41,7 +41,7 @@ async function main() {
     }
   `);
 
-  console.log("X", response.data.search);
+  console.log("X", response);
 
   const currentPRAuthorsLatestPR = prs[0];
   const currentPRAuthorsPRsCount = prs
