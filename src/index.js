@@ -21,19 +21,7 @@ async function main() {
   core.info(`Checking pull request #${event.number}: ${headRef} -> ${baseRef}`);
 
   const client = github.getOctokit(token);
-  // const prsResponse = await client.rest.pulls.list({
-  //   owner: github.context.repo.owner,
-  //   repo: github.context.repo.repo,
-  //   state: "open",
-  //   sort: "created",
-  //   direction: "desc",
-  // });
-  // const prs = prsResponse.data;
-
-  // console.log("github context>>", github.context);
-  // console.log("currentPR>>", currentPR);
-
-  const response = await client.graphql(`
+  const { search } = await client.graphql(`
     query {
       search(query: "repo:${github.context.repo.owner}/${github.context.repo.repo} author:${currentPRAuthor} is:open is:pr draft:false archived:false", type: ISSUE) {
         issueCount
@@ -41,28 +29,11 @@ async function main() {
     }
   `);
 
-  const currentPRAuthorsPRsCount = response.search.issueCount;
-
-  // const currentPRAuthorsLatestPR = prs[0];
-  // const currentPRAuthorsPRsCount = prs
-  //   .filter((pr) => !pr.draft) // ignore drafts
-  //   .map((pr) => pr.user.login)
-  //   .filter((a) => a === currentPRAuthor).length;
-
-  // console.log("currentPRAuthorsLatestPR>>", currentPRAuthorsLatestPR);
-  // console.log("prs>>", prs);
+  const currentPRAuthorsPRsCount = search.issueCount;
 
   core.info(
     `PR author ${currentPRAuthor} currently has ${currentPRAuthorsPRsCount} open PRs.`
   );
-
-  // if (currentPR.id !== currentPRAuthorsLatestPR.id) {
-  //   // this could happen if the query is returned from a old cache on github
-  //   core.info(`This is not the latest PR of ${currentPRAuthor}.`);
-
-  //   // for this edge case we just add one to the count, assuming that the first pr should exust
-  //   currentPRAuthorsPRsCount += 1;
-  // }
 
   console.log(currentPR.number);
 
