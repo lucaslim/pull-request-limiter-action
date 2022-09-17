@@ -42,7 +42,7 @@ async function main() {
 
     if (body) {
       const commentMutation = `
-        mutation($body: String!, $id: ID) {
+        mutation($body: String!, $id: ID!) {
           addComment(input: { body: $body, subjectId: $id }) {
             clientMutationId
           }
