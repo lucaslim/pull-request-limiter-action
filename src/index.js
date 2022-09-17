@@ -67,7 +67,7 @@ async function main() {
       `;
 
       await client.graphql(closePullRequestMutation, {
-        pullRequestId: currentPR.node_id,
+        id: currentPR.node_id,
       });
     }
   }
