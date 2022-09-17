@@ -64,7 +64,9 @@ async function main() {
         }
       `;
       console.log(closePullRequestMutation);
-      await client.graphql(closePullRequestMutation);
+      await client.graphql(closePullRequestMutation, {
+        pullRequestId: currentPR.node_id,
+      });
     }
   }
 }
