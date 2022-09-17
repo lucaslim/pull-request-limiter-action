@@ -21,28 +21,15 @@ async function main() {
   core.info(`Checking pull request #${event.number}: ${headRef} -> ${baseRef}`);
 
   const client = github.getOctokit(token);
-  const prsResponse = await client.rest.pulls.list({
-    owner: github.context.repo.owner,
-    repo: github.context.repo.repo,
-    state: "open",
-    sort: "created",
-    direction: "desc",
-  });
-  const prs = prsResponse.data;
+  const { search } = await client.graphql(`
+    query {
+      search(query: "repo:${github.context.repo.owner}/${github.context.repo.repo} author:${currentPRAuthor} is:open is:pr draft:false archived:false", type: ISSUE) {
+        issueCount
+      }
+    }
+  `);
 
-  const currentPRAuthorsLatestPR = prs[0];
-  let currentPRAuthorsPRsCount = prs
-    .filter((pr) => !pr.draft) // ignore drafts
-    .map((pr) => pr.user.login)
-    .filter((a) => a === currentPRAuthor).length;
-
-  if (currentPR.id !== currentPRAuthorsLatestPR.id) {
-    // this could happen if the query is returned from a old cache on github
-    core.info(`This is not the latest PR of ${currentPRAuthor}.`);
-
-    // for this edge case we just add one to the count, assuming that the first pr should exust
-    currentPRAuthorsPRsCount += 1;
-  }
+  const currentPRAuthorsPRsCount = search.issueCount;
 
   core.info(
     `PR author ${currentPRAuthor} currently has ${currentPRAuthorsPRsCount} open PRs.`
@@ -54,18 +41,33 @@ async function main() {
     );
 
     if (body) {
-      await client.rest.issues.createComment({
-        ...github.context.repo,
-        issue_number: currentPR.number,
+      const commentMutation = `
+        mutation($body: String!, $id: ID!) {
+          addComment(input: { body: $body, subjectId: $id }) {
+            clientMutationId
+          }
+        }
+      `;
+
+      await client.graphql(commentMutation, {
         body,
+        id: currentPR.node_id,
       });
     }
 
     if (autoClose) {
-      await client.rest.pulls.update({
-        ...github.context.repo,
-        pull_number: currentPR.number,
-        state: "closed",
+      const closePullRequestMutation = `
+        mutation($id: ID!) {
+          closePullRequest(input: { pullRequestId: $id }) {
+            pullRequest {
+              url
+            } 
+          }
+        }
+      `;
+
+      await client.graphql(closePullRequestMutation, {
+        id: currentPR.node_id,
       });
     }
   }
