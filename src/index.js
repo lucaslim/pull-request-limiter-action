@@ -41,7 +41,7 @@ async function main() {
     }
   `);
 
-  console.log("X", response);
+  console.log("X", response.search.issueCount);
 
   const currentPRAuthorsLatestPR = prs[0];
   const currentPRAuthorsPRsCount = prs
@@ -49,33 +49,48 @@ async function main() {
     .map((pr) => pr.user.login)
     .filter((a) => a === currentPRAuthor).length;
 
-  console.log("currentPRAuthorsLatestPR>>", currentPRAuthorsLatestPR);
-  console.log("prs>>", prs);
+  // console.log("currentPRAuthorsLatestPR>>", currentPRAuthorsLatestPR);
+  // console.log("prs>>", prs);
 
   core.info(
     `PR author ${currentPRAuthor} currently has ${currentPRAuthorsPRsCount} open PRs.`
   );
 
-  if (currentPR.id !== currentPRAuthorsLatestPR.id) {
-    // this could happen if the query is returned from a old cache on github
-    core.info(`This is not the latest PR of ${currentPRAuthor}.`);
+  // if (currentPR.id !== currentPRAuthorsLatestPR.id) {
+  //   // this could happen if the query is returned from a old cache on github
+  //   core.info(`This is not the latest PR of ${currentPRAuthor}.`);
 
-    // for this edge case we just add one to the count, assuming that the first pr should exust
-    currentPRAuthorsPRsCount += 1;
-  }
+  //   // for this edge case we just add one to the count, assuming that the first pr should exust
+  //   currentPRAuthorsPRsCount += 1;
+  // }
 
-  if (currentPRAuthorsPRsCount > limit) {
+  console.log("issueCount", response.search.issueCount);
+  if (response.search.issueCount > limit) {
     core.setFailed(
       `PR author ${currentPRAuthor} currently has ${currentPRAuthorsPRsCount} open PRs but the limit is ${limit}!`
     );
 
-    if (body) {
-      await client.rest.issues.createComment({
-        ...github.context.repo,
-        issue_number: currentPR.number,
-        body,
-      });
-    }
+    client.graphql(`
+      mutation {
+        ${
+          body
+            ? `
+          addComment(input: { body: ${body} }) {
+            clientMutationId
+          }
+        `
+            : ""
+        }
+      }
+    `);
+
+    // if (body) {
+    //   await client.rest.issues.createComment({
+    //     ...github.context.repo,
+    //     issue_number: currentPR.number,
+    //     body,
+    //   });
+    // }
 
     if (autoClose) {
       await client.rest.pulls.update({
