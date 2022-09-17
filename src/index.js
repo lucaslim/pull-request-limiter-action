@@ -21,33 +21,33 @@ async function main() {
   core.info(`Checking pull request #${event.number}: ${headRef} -> ${baseRef}`);
 
   const client = github.getOctokit(token);
-  const prsResponse = await client.rest.pulls.list({
-    owner: github.context.repo.owner,
-    repo: github.context.repo.repo,
-    state: "open",
-    sort: "created",
-    direction: "desc",
-  });
-  const prs = prsResponse.data;
+  // const prsResponse = await client.rest.pulls.list({
+  //   owner: github.context.repo.owner,
+  //   repo: github.context.repo.repo,
+  //   state: "open",
+  //   sort: "created",
+  //   direction: "desc",
+  // });
+  // const prs = prsResponse.data;
 
   // console.log("github context>>", github.context);
   // console.log("currentPR>>", currentPR);
 
   const response = await client.graphql(`
     query {
-      search(query: "repo:${github.context.repo.owner}/${github.context.repo.repo} author:${github.context.actor} is:open is:pr draft:false archived:false", type: ISSUE) {
+      search(query: "repo:${github.context.repo.owner}/${github.context.repo.repo} author:${currentPRAuthor} is:open is:pr draft:false archived:false", type: ISSUE) {
         issueCount
       }
     }
   `);
 
-  console.log("X", response.search.issueCount);
+  const currentPRAuthorsPRsCount = response.search.issueCount;
 
-  const currentPRAuthorsLatestPR = prs[0];
-  const currentPRAuthorsPRsCount = prs
-    .filter((pr) => !pr.draft) // ignore drafts
-    .map((pr) => pr.user.login)
-    .filter((a) => a === currentPRAuthor).length;
+  // const currentPRAuthorsLatestPR = prs[0];
+  // const currentPRAuthorsPRsCount = prs
+  //   .filter((pr) => !pr.draft) // ignore drafts
+  //   .map((pr) => pr.user.login)
+  //   .filter((a) => a === currentPRAuthor).length;
 
   // console.log("currentPRAuthorsLatestPR>>", currentPRAuthorsLatestPR);
   // console.log("prs>>", prs);
@@ -64,40 +64,29 @@ async function main() {
   //   currentPRAuthorsPRsCount += 1;
   // }
 
-  console.log("issueCount", response.search.issueCount);
-  if (response.search.issueCount > limit) {
+  console.log(currentPR.number);
+
+  if (response.search.issueCount - 1 > limit) {
     core.setFailed(
       `PR author ${currentPRAuthor} currently has ${currentPRAuthorsPRsCount} open PRs but the limit is ${limit}!`
     );
 
-    client.graphql(`
-      mutation {
-        ${
-          body
-            ? `
-          addComment(input: { body: ${body} }) {
+    if (body) {
+      await client.graphql(`
+        mutation {
+          addComment(input: { body: "${body}", subjectId: ${currentPR.number} }) {
             clientMutationId
           }
-        `
-            : ""
         }
-      }
-    `);
-
-    // if (body) {
-    //   await client.rest.issues.createComment({
-    //     ...github.context.repo,
-    //     issue_number: currentPR.number,
-    //     body,
-    //   });
-    // }
+      `);
+    }
 
     if (autoClose) {
-      await client.rest.pulls.update({
-        ...github.context.repo,
-        pull_number: currentPR.number,
-        state: "closed",
-      });
+      await client.graphql(`
+        mutation {
+          closePullRequest(input: { pullRequestId: ${currentPR.number} })
+        }
+      `);
     }
   }
 }
