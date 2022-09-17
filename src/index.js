@@ -59,8 +59,8 @@ async function main() {
 
     if (autoClose) {
       const closePullRequestMutation = `
-        mutation {
-          closePullRequest(input: { pullRequestId: ${currentPR.node_id} })
+        mutation($id: ID!) {
+          closePullRequest(input: { pullRequestId: $id } })
         }
       `;
       console.log(closePullRequestMutation);
