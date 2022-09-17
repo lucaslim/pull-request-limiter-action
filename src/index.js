@@ -18,8 +18,6 @@ async function main() {
   const currentPR = event.pull_request;
   const currentPRAuthor = currentPR.user.login;
 
-  console.log(currentPR.node);
-
   core.info(`Checking pull request #${event.number}: ${headRef} -> ${baseRef}`);
 
   const client = github.getOctokit(token);
@@ -50,7 +48,7 @@ async function main() {
           }
         }
       `;
-      console.log(commentMutation);
+
       await client.graphql(commentMutation, {
         body,
         id: currentPR.node_id,
@@ -60,10 +58,14 @@ async function main() {
     if (autoClose) {
       const closePullRequestMutation = `
         mutation($id: ID!) {
-          closePullRequest(input: { pullRequestId: $id } })
+          closePullRequest(input: { pullRequestId: $id } }) {
+            pullRequest {
+              url
+            } 
+          }
         }
       `;
-      console.log(closePullRequestMutation);
+
       await client.graphql(closePullRequestMutation, {
         pullRequestId: currentPR.node_id,
       });
