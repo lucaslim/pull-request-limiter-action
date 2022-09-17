@@ -18,7 +18,7 @@ async function main() {
   const currentPR = event.pull_request;
   const currentPRAuthor = currentPR.user.login;
 
-  console.log(currentPR);
+  console.log(currentPR.node);
 
   core.info(`Checking pull request #${event.number}: ${headRef} -> ${baseRef}`);
 
@@ -53,14 +53,14 @@ async function main() {
       console.log(commentMutation);
       await client.graphql(commentMutation, {
         body,
-        id: currentPR.number,
+        id: currentPR.node_id,
       });
     }
 
     if (autoClose) {
       const closePullRequestMutation = `
         mutation {
-          closePullRequest(input: { pullRequestId: ${currentPR.number} })
+          closePullRequest(input: { pullRequestId: ${currentPR.node_id} })
         }
       `;
       console.log(closePullRequestMutation);
