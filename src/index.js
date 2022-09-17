@@ -35,9 +35,7 @@ async function main() {
     `PR author ${currentPRAuthor} currently has ${currentPRAuthorsPRsCount} open PRs.`
   );
 
-  console.log(currentPR.number);
-
-  if (response.search.issueCount - 1 > limit) {
+  if (search.issueCount - 1 > limit) {
     core.setFailed(
       `PR author ${currentPRAuthor} currently has ${currentPRAuthorsPRsCount} open PRs but the limit is ${limit}!`
     );
