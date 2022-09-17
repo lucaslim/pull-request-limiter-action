@@ -42,14 +42,17 @@ async function main() {
 
     if (body) {
       const commentMutation = `
-        mutation {
-          addComment(input: { body: "${body}", subjectId: ${currentPR.number} }) {
+        mutation($body: String!, $id: ID) {
+          addComment(input: { body: $body, subjectId: $id }) {
             clientMutationId
           }
         }
       `;
       console.log(commentMutation);
-      await client.graphql(commentMutation);
+      await client.graphql(commentMutation, {
+        body,
+        id: currentPR.number,
+      });
     }
 
     if (autoClose) {
