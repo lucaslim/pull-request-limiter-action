@@ -35,27 +35,31 @@ async function main() {
     `PR author ${currentPRAuthor} currently has ${currentPRAuthorsPRsCount} open PRs.`
   );
 
-  if (search.issueCount - 1 > limit) {
+  if (currentPRAuthorsPRsCount - 1 > limit) {
     core.setFailed(
       `PR author ${currentPRAuthor} currently has ${currentPRAuthorsPRsCount} open PRs but the limit is ${limit}!`
     );
 
     if (body) {
-      await client.graphql(`
+      const commentMutation = `
         mutation {
           addComment(input: { body: "${body}", subjectId: ${currentPR.number} }) {
             clientMutationId
           }
         }
-      `);
+      `;
+      console.log(commentMutation);
+      await client.graphql(commentMutation);
     }
 
     if (autoClose) {
-      await client.graphql(`
+      const closePullRequestMutation = `
         mutation {
           closePullRequest(input: { pullRequestId: ${currentPR.number} })
         }
-      `);
+      `;
+      console.log(closePullRequestMutation);
+      await client.graphql(closePullRequestMutation);
     }
   }
 }
