@@ -18,6 +18,8 @@ async function main() {
   const currentPR = event.pull_request;
   const currentPRAuthor = currentPR.user.login;
 
+  console.log(currentPR);
+
   core.info(`Checking pull request #${event.number}: ${headRef} -> ${baseRef}`);
 
   const client = github.getOctokit(token);
@@ -43,7 +45,7 @@ async function main() {
     if (body) {
       const commentMutation = `
         mutation($body: String!, $id: ID!) {
-          addComment(input: { body: $body }) {
+          addComment(input: { body: $body, subjectId: $id }) {
             clientMutationId
           }
         }
