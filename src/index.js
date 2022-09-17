@@ -58,14 +58,14 @@ async function main() {
     if (autoClose) {
       const closePullRequestMutation = `
         mutation($id: ID!) {
-          closePullRequest(input: { pullRequestId: $id } }) {
+          closePullRequest(input: { pullRequestId: $id }) {
             pullRequest {
               url
             } 
           }
         }
       `;
-      console.log(closePullRequestMutation);
+
       await client.graphql(closePullRequestMutation, {
         pullRequestId: currentPR.node_id,
       });
