@@ -23,7 +23,7 @@ async function main() {
   const client = github.getOctokit(token);
   const { search } = await client.graphql(`
     query {
-      search(query: "repo:${github.context.repo.owner}/${github.context.repo.repo} author:${currentPRAuthor} is:open is:pr draft:false archived:false -label:\"Branched PR\"", type: ISSUE) {
+      search(query: "repo:${github.context.repo.owner}/${github.context.repo.repo} author:${currentPRAuthor} is:open is:pr draft:false archived:false -label:branched-pr", type: ISSUE) {
         issueCount
       }
     }
