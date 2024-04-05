@@ -1,0 +1,29 @@
+name: Check / Pull Request
+
+on:
+  pull_request:
+
+jobs:
+  pr-limit:
+    name: PR Limit Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR Limit
+        uses: lucaslim/pull-request-limiter-action@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          limit: 3
+          auto_close: false
+          body: |
+            Hello @${{ github.actor }}
+
+            You currently have too many opened Pull Requests. Please close this and reopen it once you have less than 3.
+
+            **For more information, please refer to our [Pull Request Guidelines](https://einc.atlassian.net/l/cp/d84EDpzo).**
+
+            **Or you could also...**
+            - Ask a repository administrators to bypass this check.
+            - See if any of your open Pull Requests can be improved.
+            - Ask reviewers to review your opened Pull Requests.
+            - Review Pull Requests from other developers.
+            - Improve our documentation.
