@@ -21,13 +21,17 @@ async function main() {
   core.info(`Checking pull request #${event.number}: ${headRef} -> ${baseRef}`);
 
   const client = github.getOctokit(token);
-  const { search } = await client.graphql(`
+  const query = `
     query {
       search(query: "repo:${github.context.repo.owner}/${github.context.repo.repo} author:${currentPRAuthor} is:open is:pr draft:false archived:false -label:branched-pr,blocked/limit-reached", type: ISSUE) {
         issueCount
       }
     }
-  `);
+  `;
+
+  core.info(query);
+
+  const { search } = await client.graphql(query);
 
   const currentPRAuthorsPRsCount = search.issueCount;
 
