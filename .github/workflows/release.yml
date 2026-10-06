@@ -40,7 +40,8 @@ jobs:
         with:
           node-version: 24
           cache: yarn
-      - run: yarn install --frozen-lockfile
+      # This job holds a write token; dependency install scripts must not run.
+      - run: yarn install --frozen-lockfile --ignore-scripts
       - run: yarn test
       - run: yarn lint
       - run: yarn build
