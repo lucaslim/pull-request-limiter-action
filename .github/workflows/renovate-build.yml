@@ -1,0 +1,53 @@
+name: Rebuild bundle for Renovate
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: renovate-build-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  rebuild:
+    if: >-
+      github.event.pull_request.user.login == 'renovate[bot]' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: yarn
+      # Updated packages run nothing before the push token exists.
+      - run: yarn install --frozen-lockfile --ignore-scripts
+      - run: yarn build
+      - id: diff
+        run: git diff --quiet build/ || echo "changed=true" >> "$GITHUB_OUTPUT"
+      # A push with GITHUB_TOKEN would not trigger CI on the new commit, so
+      # push as a GitHub App instead.
+      - if: steps.diff.outputs.changed == 'true'
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ vars.BUILD_APP_CLIENT_ID }}
+          private-key: ${{ secrets.BUILD_APP_PRIVATE_KEY }}
+          permission-contents: write
+      - if: steps.diff.outputs.changed == 'true'
+        env:
+          TOKEN: ${{ steps.app-token.outputs.token }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: |
+          # Must match gitIgnoredAuthors in renovate.json so Renovate keeps
+          # managing the branch.
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "Rebuild bundle"
+          git push "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:${HEAD_REF}"
