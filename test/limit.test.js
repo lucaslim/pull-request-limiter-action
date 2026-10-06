@@ -1,10 +1,10 @@
-const { test } = require("node:test");
-const assert = require("node:assert/strict");
-const {
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import {
   buildSearchQuery,
   countOpenPullRequests,
   isHotfixBranch,
-} = require("../src/limit");
+} from "../src/limit.js";
 
 test("search only matches open, non-draft PRs by the author", () => {
   const query = buildSearchQuery({
