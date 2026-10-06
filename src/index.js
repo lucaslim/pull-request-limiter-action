@@ -1,5 +1,10 @@
 const core = require("@actions/core");
 const github = require("@actions/github");
+const {
+  buildSearchQuery,
+  countOpenPullRequests,
+  isHotfixBranch,
+} = require("./limit");
 
 async function main() {
   if (github.context.eventName !== "pull_request") {
@@ -20,20 +25,34 @@ async function main() {
 
   core.info(`Checking pull request #${event.number}: ${headRef} -> ${baseRef}`);
 
+  if (isHotfixBranch(baseRef)) {
+    core.info(`Skipping limit check for hotfix branch ${baseRef}.`);
+    return;
+  }
+
   const client = github.getOctokit(token);
   const query = `
-    query {
-      search(query: "repo:${github.context.repo.owner}/${github.context.repo.repo} author:${currentPRAuthor} is:open is:pr draft:false archived:false -label:branched-pr,blocked/limit-reached", type: ISSUE) {
-        issueCount
+    query($searchQuery: String!) {
+      search(query: $searchQuery, type: ISSUE, first: 100) {
+        nodes {
+          ... on PullRequest {
+            baseRefName
+          }
+        }
       }
     }
   `;
+  const searchQuery = buildSearchQuery({
+    owner: github.context.repo.owner,
+    repo: github.context.repo.repo,
+    author: currentPRAuthor,
+  });
 
-  core.info(query);
+  core.info(searchQuery);
 
-  const { search } = await client.graphql(query);
+  const { search } = await client.graphql(query, { searchQuery });
 
-  const currentPRAuthorsPRsCount = search.issueCount;
+  const currentPRAuthorsPRsCount = countOpenPullRequests(search.nodes);
 
   core.info(
     `PR author ${currentPRAuthor} currently has ${currentPRAuthorsPRsCount} open PRs.`
