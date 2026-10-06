@@ -1,10 +1,10 @@
-const core = require("@actions/core");
-const github = require("@actions/github");
-const {
+import * as core from "@actions/core";
+import * as github from "@actions/github";
+import {
   buildSearchQuery,
   countOpenPullRequests,
   isHotfixBranch,
-} = require("./limit");
+} from "./limit.js";
 
 async function main() {
   if (github.context.eventName !== "pull_request") {

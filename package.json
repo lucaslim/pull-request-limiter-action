@@ -19,11 +19,15 @@
   },
   "homepage": "https://github.com/lucaslim/pull-request-limiter-action#readme",
   "devDependencies": {
-    "@types/node": "18.7.17",
-    "@vercel/ncc": "0.34.0"
+    "@types/node": "24.19.1",
+    "@vercel/ncc": "0.45.0"
   },
   "dependencies": {
-    "@actions/core": "1.9.1",
-    "@actions/github": "5.0.3"
+    "@actions/core": "3.0.1",
+    "@actions/github": "9.1.1"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=24"
   }
 }
