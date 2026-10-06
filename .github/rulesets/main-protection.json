@@ -46,6 +46,10 @@
           {
             "context": "lint",
             "integration_id": 15368
+          },
+          {
+            "context": "CodeRabbit",
+            "integration_id": 347564
           }
         ]
       }
