@@ -4,7 +4,8 @@
   "description": "Limits the number of pull requests anyone can open",
   "main": "build/index.js",
   "scripts": {
-    "build": "ncc build src/index.js -m -o build"
+    "build": "ncc build src/index.js -m -o build",
+    "test": "node --test"
   },
   "repository": "git+https://github.com/lucaslim/pull-request-limiter-action.git",
   "keywords": [
