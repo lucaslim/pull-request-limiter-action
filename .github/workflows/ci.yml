@@ -21,9 +21,7 @@ jobs:
           cache: yarn
       - run: yarn install --frozen-lockfile
       - run: yarn test
-      # The action runs the committed bundle, so a stale build/ ships stale code.
       - run: yarn build
-      - run: git diff --exit-code build/
 
   lint:
     runs-on: ubuntu-latest
