@@ -21,7 +21,7 @@
   "homepage": "https://github.com/lucaslim/pull-request-limiter-action#readme",
   "devDependencies": {
     "@eslint/js": "10.0.1",
-    "@types/node": "24.19.2",
+    "@types/node": "26.6.6",
     "@vercel/ncc": "0.45.0",
     "eslint": "10.14.0",
     "globals": "17.14.0"
